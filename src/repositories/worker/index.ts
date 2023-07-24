@@ -6,12 +6,12 @@
 
 import { expose } from 'threads/worker';
 import { Observable, Subject } from 'threads/observable';
-import { type ModuleMethods } from 'threads/dist/types/master';
+import { ModuleMethods } from 'threads/dist/types/master';
 
 import { Mutex, withTimeout } from 'async-mutex';
 import { throttle } from 'throttle-debounce';
 
-import type {
+import {
   GitOperationParams,
   RepoStatus,
   RepoStatusUpdater,
