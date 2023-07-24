@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
   workflow_call:
   push:
+    branches:
+      - release
+      - main
     tags-ignore:
       - v*
     paths-ignore:
