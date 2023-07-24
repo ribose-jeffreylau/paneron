@@ -39,12 +39,6 @@ export const updateBuffers: Repositories.Data.UpdateBuffersWithStatusReporter = 
     },
   });
 
-  if (!opts.branch) {
-    throw new Error("Cannot update buffers without branch specified");
-  }
-
-  const oldCommitHash = await git.resolveRef({ fs, dir: opts.workDir, ref: opts.branch });
-
   try {
     await Promise.all(bufferPaths.map(async (bufferPath) => {
       const absolutePath = path.join(opts.workDir, bufferPath);
@@ -98,7 +92,6 @@ export const updateBuffers: Repositories.Data.UpdateBuffersWithStatusReporter = 
     });
     updateStatus({
       status: 'ready',
-      localHead: oldCommitHash,
     });
     throw e;
   }
@@ -112,16 +105,10 @@ export const updateBuffers: Repositories.Data.UpdateBuffersWithStatusReporter = 
       message: opts.commitMessage,
       author: opts.author,
     });
+  } finally {
     updateStatus({
       status: 'ready',
-      localHead: newCommitHash,
     });
-  } catch (e) {
-    updateStatus({
-      status: 'ready',
-      localHead: oldCommitHash,
-    });
-    throw e;
   }
 
   return { newCommitHash };

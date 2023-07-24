@@ -61,14 +61,8 @@ const clone: WithStatusUpdater<Git.Sync.Clone> = async function (
         });
       },
     });
-    const localHead = await git.resolveRef({
-      fs,
-      dir: opts.workDir,
-      ref: opts.branch,
-    });
     updateStatus({
       status: 'ready',
-      localHead,
     });
   } catch (e) {
     //log.error(`C/db/isogit/worker: Error cloning repository`, e);
@@ -93,20 +87,9 @@ async function push(opts: PushRequestMessage, updateStatus: RepoStatusUpdater) {
   const {
     workDir,
     auth,
-    branch,
     _presumeCanceledErrorMeansAwaitingAuth,
     _presumeRejectedPushMeansNothingToPush,
 } = opts;
-
-  if (!branch) {
-    throw new Error("Need to know a branch in order to push");
-  }
-
-  const localHead = await git.resolveRef({
-    fs,
-    dir: opts.workDir,
-    ref: branch,
-  });
 
   try {
     await git.push({
@@ -135,7 +118,6 @@ async function push(opts: PushRequestMessage, updateStatus: RepoStatusUpdater) {
     });
     updateStatus({
       status: 'ready',
-      localHead,
     });
 
   } catch (_e) {
@@ -157,7 +139,6 @@ async function push(opts: PushRequestMessage, updateStatus: RepoStatusUpdater) {
       } else {
         updateStatus({
           status: 'ready',
-          localHead,
         });
       }
     }
@@ -171,11 +152,7 @@ const pull: WithStatusUpdater<Git.Sync.Pull> = async function (
   opts: PullRequestMessage,
   updateStatus: RepoStatusUpdater,
 ) {
-  if (!opts.branch) {
-    throw new Error("Cannot pull: branch is not specified");
-  }
-
-  const oidBeforePull = await git.resolveRef({ fs, dir: opts.workDir, ref: opts.branch });
+  const oidBeforePull = await git.resolveRef({ fs, dir: opts.workDir, ref: 'HEAD' });
 
   try {
     await git.pull({
@@ -205,14 +182,8 @@ const pull: WithStatusUpdater<Git.Sync.Pull> = async function (
         });
       },
     });
-    const localHead = await git.resolveRef({
-      fs,
-      dir: opts.workDir,
-      ref: opts.branch,
-    });
     updateStatus({
       status: 'ready',
-      localHead,
     });
   } catch (e) {
     //log.error(`C/db/isogit/worker: Error pulling from repository`, e);
@@ -229,7 +200,7 @@ const pull: WithStatusUpdater<Git.Sync.Pull> = async function (
     throw e;
   }
 
-  const oidAfterPull = await git.resolveRef({ fs, dir: opts.workDir, ref: opts.branch });
+  const oidAfterPull = await git.resolveRef({ fs, dir: opts.workDir, ref: 'HEAD' });
 
   return { oidBeforePull, oidAfterPull };
 }

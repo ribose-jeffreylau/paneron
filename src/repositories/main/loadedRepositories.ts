@@ -64,7 +64,7 @@ async function _loadRepository(workingCopyPath: string): Promise<RepoStatus> {
       "Repositories: Load: Already loaded",
       workingCopyPath,
       loadedRepositories[workingCopyPath].latestStatus);
-    return loadedRepositories[workingCopyPath].latestStatus ?? { status: 'ready', localHead: '' };
+    return loadedRepositories[workingCopyPath].latestStatus ?? { status: 'ready' };
   }
 
   log.silly("Repositories: Load: Reading config", workingCopyPath);
@@ -119,7 +119,7 @@ async function _loadRepository(workingCopyPath: string): Promise<RepoStatus> {
 
   log.silly("Repositories: Load: Spawning workers", workingCopyPath);
 
-  const workers = await getRepoWorkers(workingCopyPath, repoCfg.mainBranch);
+  const workers = await getRepoWorkers(workingCopyPath);
 
   log.silly("Repositories: Load: Subscribing to status updates", workingCopyPath);
 
@@ -156,8 +156,6 @@ async function _loadRepository(workingCopyPath: string): Promise<RepoStatus> {
     workDir: workingCopyPath,
   });
 
-  const { commitHash: localHead } = await workers.sync.repo_getCurrentCommit({});
-
   if (workDirPathExists && !workDirIsValid) {
     log.warn("Repositories: Load: Working copy in filesystem is invalid (not a Git repo?)", workingCopyPath);
     await loadedRepositoryStatusChanged.main!.trigger({
@@ -170,9 +168,9 @@ async function _loadRepository(workingCopyPath: string): Promise<RepoStatus> {
     log.silly("Repositories: Load: Finishing", workingCopyPath);
     await loadedRepositoryStatusChanged.main!.trigger({
       workingCopyPath,
-      status: { status: 'ready', localHead },
+      status: { status: 'ready' },
     });
-    return { status: 'ready', localHead };
+    return { status: 'ready' };
   }
 }
 

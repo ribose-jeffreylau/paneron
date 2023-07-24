@@ -8,12 +8,12 @@ import { getUncommittedObjectPaths } from './work-dir';
 
 
 
-const getCurrentCommit: Repositories.Data.GetCurrentCommit = async function ({ workDir, branch }) {
+const getCurrentCommit: Repositories.Data.GetCurrentCommit = async function ({ workDir }) {
   return {
     commitHash: await git.resolveRef({
       fs,
       dir: workDir,
-      ref: branch ?? 'HEAD',
+      ref: 'HEAD',
     }),
   };
 }
